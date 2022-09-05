@@ -25,7 +25,7 @@ def index():
             uClient.close()
             flipkart_html = bs(flipkartPage, "html.parser")
             bigboxes = flipkart_html.findAll("div", {"class": "_1AtVbE col-12-12"})
-            del bigboxes[0:3]
+            del bigboxes[0:2] #Here first two contains unnecessary elements
             box = bigboxes[0]
             productLink = "https://www.flipkart.com" + box.div.div.div.a['href']
             prodRes = requests.get(productLink)
