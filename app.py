@@ -4,8 +4,6 @@ import requests
 from bs4 import BeautifulSoup as bs
 from urllib.request import urlopen as uReq
 
-# first we are tring to install all libraries in requiremenets.txt by 'pip install -r requirements.txt'
-
 app = Flask(__name__)
 
 @app.route('/',methods=['GET'])  # route to display the home page
@@ -25,7 +23,7 @@ def index():
             uClient.close()
             flipkart_html = bs(flipkartPage, "html.parser")
             bigboxes = flipkart_html.findAll("div", {"class": "_1AtVbE col-12-12"})
-            del bigboxes[0:2] #Here first two contains unnecessary elements
+            del bigboxes[0:3]
             box = bigboxes[0]
             productLink = "https://www.flipkart.com" + box.div.div.div.a['href']
             prodRes = requests.get(productLink)
@@ -36,28 +34,20 @@ def index():
 
             filename = searchString + ".csv"
             fw = open(filename, "w")
-            headers = "Price,Product, Customer Name, Rating, Heading, Comment \n"
+            headers = "Product, Customer Name, Rating, Heading, Comment \n"
             fw.write(headers)
             reviews = []
             for commentbox in commentboxes:
                 try:
                     #name.encode(encoding='utf-8')
-                    price = prod_html.find_all('div',{"class":"_30jeq3 _16Jk6d"})[0].text
-
-                except:
-                    price = 'No Name'
-
-
-                try:
-                    #name.encode(encoding='utf-8')
-                    name = commentbox.div.div.find_all('p', {'class': '_2sc7ZR _2V5EHH'})[0].text   #extracting name
+                    name = commentbox.div.div.find_all('p', {'class': '_2sc7ZR _2V5EHH'})[0].text
 
                 except:
                     name = 'No Name'
 
                 try:
                     #rating.encode(encoding='utf-8')
-                    rating = commentbox.div.div.div.div.text  #extracting rating
+                    rating = commentbox.div.div.div.div.text
 
 
                 except:
@@ -70,13 +60,13 @@ def index():
                 except:
                     commentHead = 'No Comment Heading'
                 try:
-                    comtag = commentbox.div.div.find_all('div', {'class': ''}) #extracting long comment
+                    comtag = commentbox.div.div.find_all('div', {'class': ''})
                     #custComment.encode(encoding='utf-8')
                     custComment = comtag[0].div.text
                 except Exception as e:
                     print("Exception while creating dictionary: ",e)
 
-                mydict = {"Price": price,"Product": searchString, "Name": name, "Rating": rating, "CommentHead": commentHead,
+                mydict = {"Product": searchString, "Name": name, "Rating": rating, "CommentHead": commentHead,
                           "Comment": custComment}
                 reviews.append(mydict)
             return render_template('results.html', reviews=reviews[0:(len(reviews)-1)])
